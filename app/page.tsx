@@ -1,7 +1,25 @@
-export default function PlansPage() {
+import { Button } from "@/components/ui/button";
+
+type SearchParams = {
+  cupom: string;
+};
+
+type PlansPageProps = {
+  searchParams: Promise<SearchParams>;
+};
+
+async function PlansPage({ searchParams }: PlansPageProps) {
+  const params = await searchParams;
+
+  console.log(params.cupom);
+
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <h1 className="text-4xl font-bold">Plans</h1>
+      <Button className="shadow-cta-glow">Subscribe Now</Button>
+      <Button variant="secondary">Subscribe Now</Button>
+      <Button>Subscribe Now</Button>
     </div>
   );
 }
+
+export default PlansPage;
