@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 type SearchParams = {
   cupom: string;
@@ -18,6 +19,9 @@ async function PlansPage({ searchParams }: PlansPageProps) {
       <Button className="shadow-cta-glow">Subscribe Now</Button>
       <Button variant="secondary">Subscribe Now</Button>
       <Button>Subscribe Now</Button>
+      <div>
+        <Input placeholder="Digite seu email" />
+      </div>
     </div>
   );
 }
