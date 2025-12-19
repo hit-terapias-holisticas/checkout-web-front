@@ -1,6 +1,6 @@
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
-import { checkUserRequestSchema } from "@/app/domain/emailValidation/schema";
+import { checkUserRequestSchema } from "@/domain/emailValidation/schema";
 
 function getApiUrl(): string {
   const apiUrl = process.env.API_URL;

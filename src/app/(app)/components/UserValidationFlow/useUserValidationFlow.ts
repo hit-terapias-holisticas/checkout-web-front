@@ -6,8 +6,8 @@ import { toast } from "sonner";
 import {
   emailValidationSchema,
   type EmailValidationFormData,
-} from "@/app/domain/emailValidation/schema";
-import { checkUserService } from "@/app/domain/emailValidation/services";
+} from "@/domain/emailValidation/schema";
+import { checkUserService } from "@/domain/emailValidation/services";
 
 import type { UseUserValidationFlowProps } from "./types";
 
