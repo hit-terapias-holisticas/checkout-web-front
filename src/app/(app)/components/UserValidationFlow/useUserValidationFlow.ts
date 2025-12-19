@@ -9,7 +9,6 @@ import type { UseUserValidationFlowProps } from "./types";
 import { EmailValidationFormData } from "@/src/domain/User/userTypes";
 import { emailValidationSchema } from "@/src/domain/User/userSchema";
 import { AppError, AppErrorAction } from "@/src/utils/errors/AppError";
-import { redirect } from "next/navigation";
 
 export function useUserValidationFlow({
   planId,
@@ -34,9 +33,10 @@ export function useUserValidationFlow({
         couponId,
       });
 
-      redirect(response.linkToPaymentPage);
+      window.location.assign(response.linkToPaymentPage);
     } catch (error) {
       if (error instanceof AppError) {
+        console.log(error.action);
         if (error.action === AppErrorAction.RedirectToCreateUser) {
           setIsEmailModalOpen(false);
           setIsCreateAccountModalOpen(true);

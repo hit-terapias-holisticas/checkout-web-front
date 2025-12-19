@@ -45,22 +45,22 @@ export function CreateAccountModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="w-full max-w-[95vw] sm:max-w-xl md:max-w-2xl lg:max-w-3xl px-6 py-10 sm:px-12 sm:py-14 md:px-20 md:py-20 rounded-3xl sm:rounded-4xl gap-0">
-        <DialogHeader className="flex flex-col items-center text-center gap-3 sm:gap-4 flex-shrink-0 mb-8">
-          <DialogTitle className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-blue-950">
+      <DialogContent className="w-full max-w-xl md:max-w-2xl px-6 py-10 sm:px-12 sm:py-14 rounded-3xl">
+        <DialogHeader className="flex flex-col items-center text-center gap-3 mb-8">
+          <DialogTitle className="text-3xl md:text-4xl font-bold text-blue-950">
             Crie sua conta HIT
           </DialogTitle>
-          <DialogDescription className="text-sm sm:text-base md:text-lg lg:text-1-5xl font-bold text-gray-500 text-center leading-7">
+          <DialogDescription className="text-base md:text-lg font-bold text-gray-500 leading-relaxed">
             Complete seu cadastro. Você usará estas mesmas informações para
             acessar o app e iniciar suas terapias.
           </DialogDescription>
         </DialogHeader>
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col gap-3 md:gap-6 flex-shrink-0"
+          className="flex flex-col gap-6"
         >
           <Field data-invalid={!!errors.name}>
-            <FieldLabel className="text-sm sm:text-sm-plus md:text-base font-semibold text-blue-950">
+            <FieldLabel className="text-sm md:text-base font-semibold text-blue-950">
               Nome
             </FieldLabel>
             <Input
@@ -74,7 +74,7 @@ export function CreateAccountModal({
           </Field>
 
           <Field data-invalid={!!errors.email}>
-            <FieldLabel className="text-sm sm:text-sm-plus md:text-base font-semibold text-blue-950">
+            <FieldLabel className="text-sm md:text-base font-semibold text-blue-950">
               E-mail
             </FieldLabel>
             <Input
@@ -89,7 +89,7 @@ export function CreateAccountModal({
           </Field>
 
           <Field data-invalid={!!errors.password}>
-            <FieldLabel className="text-sm sm:text-sm-plus md:text-base font-semibold text-blue-950">
+            <FieldLabel className="text-sm md:text-base font-semibold text-blue-950">
               Senha
             </FieldLabel>
             <FieldContent>
@@ -122,7 +122,7 @@ export function CreateAccountModal({
           </Field>
 
           <Field data-invalid={!!errors.confirmPassword}>
-            <FieldLabel className="text-sm sm:text-sm-plus md:text-base font-semibold text-blue-950">
+            <FieldLabel className="text-sm md:text-base font-semibold text-blue-950">
               Confirme sua senha
             </FieldLabel>
             <FieldContent>

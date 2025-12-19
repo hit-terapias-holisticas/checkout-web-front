@@ -19,28 +19,28 @@ export function EmailValidationModal({
 }: EmailValidationModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full max-w-[95vw] sm:max-w-xl md:max-w-2xl lg:max-w-3xl px-6 py-10 sm:px-12 sm:py-14 md:px-20 md:py-20 rounded-3xl sm:rounded-4xl gap-0">
-        <div className="flex flex-col items-center text-center pb-6 sm:pb-8 md:pb-10">
+      <DialogContent className="w-full max-w-xl md:max-w-2xl px-6 py-10 sm:px-12 sm:py-14 rounded-3xl">
+        <div className="flex flex-col items-center text-center pb-8">
           <Image
             src="/images/logo-full.png"
             alt="Logo"
             width={150}
             height={50}
-            className="pb-4 sm:pb-6 md:pb-8 w-25 sm:w-30 md:w-37.5 h-auto"
+            className="pb-6 w-auto h-auto"
           />
-          <h1 className="text-5xl sm:text-4xl md:text-5xl font-bold text-blue-950 leading-tight sm:leading-tight md:leading-15 pb-2 sm:pb-3 md:pb-4">
+          <h1 className="text-3xl md:text-4xl font-bold text-blue-950 leading-tight pb-3">
             Insira seu e-mail e inicie sua assinatura
           </h1>
-          <p className="text-base sm:text-lg md:text-1-5xl font-bold text-gray-500">
+          <p className="text-base md:text-lg font-bold text-gray-500">
             Se você já possui um cadastro, use seu e-mail para logar.
           </p>
         </div>
         <form
           onSubmit={onSubmit}
-          className="flex flex-col items-center text-center gap-4 sm:gap-6 md:gap-8"
+          className="flex flex-col gap-6"
         >
           <Field data-invalid={!!errors.email}>
-            <FieldLabel className="text-sm sm:text-sm-plus md:text-base font-semibold text-blue-950">
+            <FieldLabel className="text-sm md:text-base font-semibold text-blue-950">
               Email
             </FieldLabel>
             <Input
