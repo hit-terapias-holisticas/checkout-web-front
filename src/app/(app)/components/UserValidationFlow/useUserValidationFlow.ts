@@ -33,10 +33,20 @@ export function useUserValidationFlow({
         couponId,
       });
 
-      window.location.assign(response.linkToPaymentPage);
+      if (response.linkToPaymentPage) {
+        window.location.assign(response.linkToPaymentPage);
+        return;
+      }
+
+      if (!response.linkToPaymentPage && response.error) {
+        throw new AppError(
+          response.error.message,
+          response.error.statusCode,
+          response.error.action
+        );
+      }
     } catch (error) {
       if (error instanceof AppError) {
-        console.log(error.action);
         if (error.action === AppErrorAction.RedirectToCreateUser) {
           setIsEmailModalOpen(false);
           setIsCreateAccountModalOpen(true);

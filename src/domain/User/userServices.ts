@@ -24,16 +24,21 @@ export async function checkUserAlreadyExists(
   payload: CheckUserAlreadyExistsDTO
 ) {
   try {
-    const { data } = await userResources.checkUserAlreadyExists(payload);
+    const response = await userResources.checkUserAlreadyExists(payload);
 
     return {
-      linkToPaymentPage: data.linkToPaymentPage,
+      linkToPaymentPage: response.data.linkToPaymentPage,
     };
   } catch (error) {
     if (error instanceof AppError) {
-      throw new AppError(error.message, error.statusCode, error?.action);
+      return {
+        linkToPaymentPage: null,
+        error: new AppError(error.message, error.statusCode, error?.action),
+      };
     }
 
-    throw error;
+    return {
+      linkToPaymentPage: null,
+    };
   }
 }

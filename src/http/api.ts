@@ -12,7 +12,7 @@ api.interceptors.response.use(
       return Promise.reject(
         new AppError(
           error.response?.data?.message,
-          error?.response?.statusCode,
+          error?.response?.status,
           error?.response?.data?.action
         )
       );
