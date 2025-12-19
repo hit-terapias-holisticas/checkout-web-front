@@ -3,13 +3,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
-import {
-  emailValidationSchema,
-  type EmailValidationFormData,
-} from "@/domain/emailValidation/schema";
-import { checkUserService } from "@/domain/emailValidation/services";
+import { userService } from "@/src/domain/services";
 
 import type { UseUserValidationFlowProps } from "./types";
+import { EmailValidationFormData } from "@/src/domain/User/userTypes";
+import { emailValidationSchema } from "@/src/domain/User/userSchema";
+import { AppError, AppErrorAction } from "@/src/utils/errors/AppError";
+import { redirect } from "next/navigation";
 
 export function useUserValidationFlow({
   planId,
@@ -22,24 +22,33 @@ export function useUserValidationFlow({
 
   const form = useForm<EmailValidationFormData>({
     resolver: zodResolver(emailValidationSchema),
-    defaultValues: {
-      email: "",
-    },
   });
 
   const onEmailSubmit = async (data: EmailValidationFormData) => {
     setIsLoading(true);
 
     try {
-      const result = await checkUserService(data.email, planId, couponId);
+      const response = await userService.checkUserAlreadyExists({
+        email: data.email,
+        planId,
+        couponId,
+      });
 
-      if (result.type === "redirect") {
-        window.location.href = result.url;
-      } else {
-        setIsEmailModalOpen(false);
-        setIsCreateAccountModalOpen(true);
-      }
+      redirect(response.linkToPaymentPage);
     } catch (error) {
+      if (error instanceof AppError) {
+        if (error.action === AppErrorAction.RedirectToCreateUser) {
+          setIsEmailModalOpen(false);
+          setIsCreateAccountModalOpen(true);
+          return;
+        }
+
+        if (error.action === AppErrorAction.UserAlreadyHasAPlan) {
+          toast.success("Parabéns!! Você já possui um plano ativo.");
+        }
+        return;
+      }
+
       toast.error("Ocorreu um erro ao verificar seu email. Tente novamente.");
     } finally {
       setIsLoading(false);
