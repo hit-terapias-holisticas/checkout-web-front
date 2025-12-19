@@ -17,6 +17,7 @@ export async function createUserService(
   couponId: string | undefined,
   terms: boolean
 ): Promise<CreateUserResult> {
+  console.log("para estaurar a branch");
   const payload: RequestCreateUser = {
     email,
     password,
