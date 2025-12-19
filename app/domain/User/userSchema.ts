@@ -27,15 +27,3 @@ export const createAccountSchema = z
   });
 
 export type CreateAccountFormData = z.infer<typeof createAccountSchema>;
-
-export const createUserRequestSchema = z.object({
-  email: z.string().trim().toLowerCase().email("Invalid email address"),
-  password: z.string().min(1, "Password is required"),
-  planId: z.string().min(1, "Plan ID is required"),
-  couponId: z.string().optional(),
-  terms: z.boolean().refine((val) => val === true, {
-    message: "Terms must be accepted",
-  }),
-});
-
-export type CreateUserRequestDTO = z.infer<typeof createUserRequestSchema>;

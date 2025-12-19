@@ -3,13 +3,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
-import {
-  createAccountSchema,
-  type CreateAccountFormData,
-} from "@/app/domain/createAccount/schema";
-import { createUserService } from "@/app/domain/createAccount/services";
+import { userService } from "@/app/domain/services";
 
 import type { CreateAccountModalProps } from "./types";
+import {
+  CreateAccountFormData,
+  createAccountSchema,
+} from "@/app/domain/User/userSchema";
 
 export function useCreateAccountModal({
   isOpen,
@@ -49,20 +49,16 @@ export function useCreateAccountModal({
 
   const onSubmit = async (data: CreateAccountFormData) => {
     try {
-      const result = await createUserService(
-        data.email,
-        data.password,
+      const result = await userService.createUser({
+        name: data.name,
+        email: data.email,
+        password: data.password,
         planId,
         couponId,
-        data.acceptTerms
-      );
+        terms: data.acceptTerms,
+      });
 
-      if (result.type === "redirect") {
-        window.location.assign(result.url);
-      } else {
-        toast.error("Erro ao criar sua conta. Por favor, tente novamente.");
-        onOpenChange(false);
-      }
+      window.location.assign(result.linkToPaymentPage);
     } catch {
       toast.error(
         "Ocorreu um erro ao criar sua conta. Por favor, tente novamente."
