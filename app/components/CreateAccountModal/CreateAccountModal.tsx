@@ -27,6 +27,8 @@ export function CreateAccountModal({
   isOpen,
   onOpenChange,
   email,
+  planId,
+  couponId,
 }: CreateAccountModalProps) {
   const {
     register,
@@ -39,7 +41,7 @@ export function CreateAccountModal({
     showConfirmPassword,
     setShowConfirmPassword,
     handleOpenChange,
-  } = useCreateAccountModal({ isOpen, onOpenChange, email });
+  } = useCreateAccountModal({ isOpen, onOpenChange, email, planId, couponId });
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
@@ -66,6 +68,7 @@ export function CreateAccountModal({
               placeholder="Digite seu nome"
               disabled={isSubmitting}
               aria-invalid={!!errors.name}
+              aria-label="Nome"
             />
             <FieldError>{errors.name?.message}</FieldError>
           </Field>
@@ -80,6 +83,7 @@ export function CreateAccountModal({
               placeholder="Digite seu e-mail"
               disabled={isSubmitting || !!email}
               aria-invalid={!!errors.email}
+              aria-label="E-mail"
             />
             <FieldError>{errors.email?.message}</FieldError>
           </Field>
@@ -97,19 +101,21 @@ export function CreateAccountModal({
                   disabled={isSubmitting}
                   className="pr-12"
                   aria-invalid={!!errors.password}
+                  aria-label="Senha"
                 />
-                <button
+                <Button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 hover:bg-transparent focus:outline-none bg-transparent border-0 shadow-none p-0 h-auto w-auto"
                   tabIndex={-1}
+                  aria-label="Alternar visibilidade da senha"
                 >
                   {showPassword ? (
                     <EyeOff className="h-6 w-6 text-gray-400" />
                   ) : (
                     <Eye className="h-6 w-6 text-gray-400" />
                   )}
-                </button>
+                </Button>
               </div>
             </FieldContent>
             <FieldError>{errors.password?.message}</FieldError>
@@ -128,19 +134,21 @@ export function CreateAccountModal({
                   disabled={isSubmitting}
                   className="pr-12"
                   aria-invalid={!!errors.confirmPassword}
+                  aria-label="Confirme sua senha"
                 />
-                <button
+                <Button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 hover:bg-transparent focus:outline-none bg-transparent border-0 shadow-none p-0 h-auto w-auto"
                   tabIndex={-1}
+                  aria-label="Alternar visibilidade da confirmação de senha"
                 >
                   {showConfirmPassword ? (
                     <EyeOff className="h-6 w-6 text-gray-400" />
                   ) : (
                     <Eye className="h-6 w-6 text-gray-400" />
                   )}
-                </button>
+                </Button>
               </div>
             </FieldContent>
             <FieldError>{errors.confirmPassword?.message}</FieldError>
@@ -159,6 +167,7 @@ export function CreateAccountModal({
                       onCheckedChange={field.onChange}
                       disabled={isSubmitting}
                       className="mt-0.5"
+                      aria-label="Aceitar termos e condições de uso e política de privacidade"
                     />
                   )}
                 />
@@ -190,7 +199,12 @@ export function CreateAccountModal({
             <FieldError>{errors.acceptTerms?.message}</FieldError>
           </Field>
 
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isSubmitting}
+            aria-label={isSubmitting ? "Criando conta..." : "Criar conta"}
+          >
             {isSubmitting ? "Criando conta..." : "Criar conta"}
           </Button>
         </form>

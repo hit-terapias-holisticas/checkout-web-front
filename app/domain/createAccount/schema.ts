@@ -14,11 +14,8 @@ export const createAccountSchema = z
       .email("Por favor, insira um endereço de email válido"),
     password: z
       .string()
-      .min(8, "Senha deve ter pelo menos 8 caracteres")
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        "Senha deve conter pelo menos uma letra maiúscula, uma minúscula e um número"
-      ),
+      .min(1, "Senha é obrigatória")
+      .min(8, "A senha deve ter pelo menos 8 caracteres"),
     confirmPassword: z.string().min(1, "Confirmação de senha é obrigatória"),
     acceptTerms: z.boolean().refine((val) => val === true, {
       message: "Você deve aceitar os termos e condições",
@@ -31,4 +28,14 @@ export const createAccountSchema = z
 
 export type CreateAccountFormData = z.infer<typeof createAccountSchema>;
 
+export const createUserRequestSchema = z.object({
+  email: z.string().trim().toLowerCase().email("Invalid email address"),
+  password: z.string().min(1, "Password is required"),
+  planId: z.string().min(1, "Plan ID is required"),
+  couponId: z.string().optional(),
+  terms: z.boolean().refine((val) => val === true, {
+    message: "Terms must be accepted",
+  }),
+});
 
+export type CreateUserRequestDTO = z.infer<typeof createUserRequestSchema>;

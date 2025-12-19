@@ -7,6 +7,7 @@ import {
   createAccountSchema,
   type CreateAccountFormData,
 } from "@/app/domain/createAccount/schema";
+import { createUserService } from "@/app/domain/createAccount/services";
 
 import type { CreateAccountModalProps } from "./types";
 
@@ -14,6 +15,8 @@ export function useCreateAccountModal({
   isOpen,
   onOpenChange,
   email,
+  planId,
+  couponId,
 }: CreateAccountModalProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -21,7 +24,7 @@ export function useCreateAccountModal({
   const form = useForm<CreateAccountFormData>({
     resolver: zodResolver(createAccountSchema),
     defaultValues: {
-      email: email || "",
+      email: email,
       name: "",
       password: "",
       confirmPassword: "",
@@ -39,20 +42,28 @@ export function useCreateAccountModal({
   } = form;
 
   useEffect(() => {
-    if (email && isOpen) {
+    if (isOpen) {
       setValue("email", email);
     }
   }, [email, isOpen, setValue]);
 
   const onSubmit = async (data: CreateAccountFormData) => {
     try {
-      // TODO: implementar chamada para criação de conta
-      console.log("Form data:", data);
+      const result = await createUserService(
+        data.email,
+        data.password,
+        planId,
+        couponId,
+        data.acceptTerms
+      );
 
-      toast.success("Conta criada com sucesso!");
-      reset();
-      onOpenChange(false);
-    } catch (error) {
+      if (result.type === "redirect") {
+        window.location.assign(result.url);
+      } else {
+        toast.error("Erro ao criar sua conta. Por favor, tente novamente.");
+        onOpenChange(false);
+      }
+    } catch {
       toast.error(
         "Ocorreu um erro ao criar sua conta. Por favor, tente novamente."
       );
