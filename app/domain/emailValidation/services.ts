@@ -16,7 +16,7 @@ export async function checkUserService(
 ): Promise<CheckUserResult> {
   const payload: CheckUserRequestDTO = {
     email,
-    planId,
+    planId: "price_1Nvc7FEfQKiiS0LMXWkxOUYQ",
     ...(couponId ? { couponId } : {}),
   };
 

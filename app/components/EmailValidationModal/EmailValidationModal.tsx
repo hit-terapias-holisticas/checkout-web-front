@@ -48,7 +48,9 @@ export function EmailValidationModal({
               placeholder="Digite seu email"
               disabled={isLoading}
             />
-            <FieldError>{errors.email?.message}</FieldError>
+            <FieldError className="text-left">
+              {errors.email?.message}
+            </FieldError>
           </Field>
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? "Verificando..." : "Continuar"}
