@@ -1,5 +1,7 @@
 export enum AppErrorAction {
-  CreateAccount = "createAccount",
+  RedirectToCreateUser = "REDIRECT_TO_CREATE_USER",
+  RedirectToPaymentHomepage = "REDIRECT_TO_PAYMENT_HOMEPAGE",
+  UserAlreadyHasAPlan = "USER_ALREADY_HAS_A_PLAN",
 }
 
 export class AppError {

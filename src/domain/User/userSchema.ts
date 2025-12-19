@@ -26,4 +26,10 @@ export const createAccountSchema = z
     path: ["confirmPassword"],
   });
 
-export type CreateAccountFormData = z.infer<typeof createAccountSchema>;
+export const emailValidationSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .email("Por favor, insira um endereço de email válido"),
+});

@@ -1,5 +1,5 @@
+import { EmailValidationFormData } from "@/src/domain/User/userTypes";
 import type { FieldErrors, UseFormRegister } from "react-hook-form";
-import type { EmailValidationFormData } from "@/domain/emailValidation/schema";
 
 export type EmailValidationModalProps = {
   isOpen: boolean;

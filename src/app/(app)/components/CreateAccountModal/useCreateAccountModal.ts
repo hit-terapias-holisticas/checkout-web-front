@@ -6,10 +6,8 @@ import { toast } from "sonner";
 import { userService } from "@/domain/services";
 
 import type { CreateAccountModalProps } from "./types";
-import {
-  CreateAccountFormData,
-  createAccountSchema,
-} from "@/domain/User/userSchema";
+import { createAccountSchema } from "@/domain/User/userSchema";
+import { CreateAccountFormData } from "@/src/domain/User/userTypes";
 
 export function useCreateAccountModal({
   isOpen,

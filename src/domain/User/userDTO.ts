@@ -6,3 +6,9 @@ export type CreateUserDTO = {
   couponId?: string;
   terms: boolean;
 };
+
+export type CheckUserAlreadyExistsDTO = {
+  email: string;
+  planId: string;
+  couponId?: string;
+};
