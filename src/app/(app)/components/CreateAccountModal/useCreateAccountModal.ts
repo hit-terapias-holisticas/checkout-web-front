@@ -3,13 +3,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
-import { userService } from "@/app/domain/services";
+import { userService } from "@/domain/services";
 
 import type { CreateAccountModalProps } from "./types";
 import {
   CreateAccountFormData,
   createAccountSchema,
-} from "@/app/domain/User/userSchema";
+} from "@/domain/User/userSchema";
 
 export function useCreateAccountModal({
   isOpen,

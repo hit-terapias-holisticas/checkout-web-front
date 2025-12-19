@@ -1,6 +1,6 @@
 "use server";
 
-import { AppError } from "@/utils/errors/AppError";
+import { AppError } from "@/src/utils/errors/AppError";
 import { CreateUserDTO } from "./userDTO";
 import * as userResources from "./userResources";
 
