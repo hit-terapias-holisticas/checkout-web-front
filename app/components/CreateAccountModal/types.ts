@@ -1,5 +1,7 @@
 export type CreateAccountModalProps = {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  email?: string;
+  email: string;
+  planId: string;
+  couponId?: string;
 };

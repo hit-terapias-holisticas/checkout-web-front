@@ -40,6 +40,8 @@ export function UserValidationFlow({
         isOpen={isCreateAccountModalOpen}
         onOpenChange={handleCreateAccountModalChange}
         email={emailForm.getValues("email")}
+        planId={planId}
+        couponId={couponId}
       />
     </>
   );

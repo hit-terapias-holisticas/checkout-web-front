@@ -1,6 +1,6 @@
+import { UserValidationFlow } from "./components/UserValidationFlow/UserValidationFlow";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { UserValidationFlow } from "./components/UserValidationFlow/UserValidationFlow";
 
 type SearchParams = {
   cupom: string;
