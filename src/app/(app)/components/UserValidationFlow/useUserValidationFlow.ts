@@ -35,8 +35,6 @@ export function useUserValidationFlow({
         couponId,
       });
 
-      console.log(response);
-
       if (!response.success && response.error) {
         throw new AppError(
           response.error?.message,
@@ -47,7 +45,6 @@ export function useUserValidationFlow({
 
       window.location.assign(response.linkToPaymentPage);
     } catch (error) {
-      console.log(error instanceof AppError);
       if (error instanceof AppError) {
         if (error.action === AppErrorAction.RedirectToCreateUser) {
           setIsEmailModalOpen(false);
@@ -58,8 +55,8 @@ export function useUserValidationFlow({
         if (error.action === AppErrorAction.UserAlreadyHasAPlan) {
           // TODO: Abrir modal com a mensagem
           toast.success("Parabéns!! Você já possui um plano ativo.");
+          return;
         }
-        return;
       }
 
       toast.error("Ocorreu um erro ao verificar seu email. Tente novamente.");
