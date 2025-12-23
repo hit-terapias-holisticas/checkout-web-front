@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 type Plan = {
   id: string;
   price: number;
+  priceWithDiscount?: number;
   appointments: number;
   isRecommended: boolean;
   title: string;
@@ -16,9 +17,13 @@ type Plan = {
 
 type PlanCarouselProps = {
   plans: Plan[];
+  handleEmailModalChange: (isOpen: boolean, planId: string) => void;
 };
 
-export function PlanCarousel({ plans }: PlanCarouselProps) {
+export function PlanCarousel({
+  plans,
+  handleEmailModalChange,
+}: PlanCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(() => {
     const recommendedIndex = plans.findIndex((p) => p.isRecommended);
     return recommendedIndex >= 0 ? recommendedIndex : 0;
@@ -93,7 +98,7 @@ export function PlanCarousel({ plans }: PlanCarouselProps) {
             className="min-w-full snap-center flex justify-center lg:min-w-0 lg:w-auto"
           >
             <div className="w-full md:max-w-md lg:max-w-none lg:w-auto">
-              <PlanCard {...plan} />
+              <PlanCard {...plan} onSelect={handleEmailModalChange} />
             </div>
           </div>
         ))}

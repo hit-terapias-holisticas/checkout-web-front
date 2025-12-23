@@ -35,10 +35,7 @@ export function EmailValidationModal({
             Se você já possui um cadastro, use seu e-mail para logar.
           </p>
         </div>
-        <form
-          onSubmit={onSubmit}
-          className="flex flex-col gap-6"
-        >
+        <form onSubmit={onSubmit} className="flex flex-col gap-6">
           <Field data-invalid={!!errors.email}>
             <FieldLabel className="text-sm md:text-base font-semibold text-blue-950">
               Email
