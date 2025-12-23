@@ -6,21 +6,25 @@ import { Button } from "./ui/button";
 type PlanCardProps = {
   id: string;
   price: number;
+  priceWithDiscount?: number;
   appointments: number;
   isRecommended: boolean;
   title: string;
   description: string;
   benefits: string[];
+  onSelect: (isOpen: boolean, planId: string) => void;
 };
 
 export function PlanCard({
   id,
   price,
+  priceWithDiscount,
   appointments,
   isRecommended,
   title,
   description,
   benefits,
+  onSelect,
 }: PlanCardProps) {
   const sessionLabel = appointments === 1 ? "Sessão" : "Sessões";
 
@@ -45,16 +49,41 @@ export function PlanCard({
         <div className="px-4 pt-4 pb-10 flex flex-col flex-1">
           <h3 className="text-2-5xl font-bold text-blue-950">{title}</h3>
           <p className="text-base text-gray-600 pb-6">{description}</p>
-          <div className="flex items-baseline gap-1 pb-1">
-            <span
-              className={cn("text-5xl font-black", {
-                "text-primary-600": isRecommended,
-                "text-blue-950": !isRecommended,
-              })}
-            >
-              {formatPrice(price)}
-            </span>
-            <span className="text-base text-gray-600 font-semibold">/mês</span>
+          <div className="flex flex-col gap-1 pb-1">
+            {priceWithDiscount ? (
+              <>
+                <span className="text-sm text-gray-400 font-semibold line-through">
+                  {formatPrice(price)}
+                </span>
+                <div className="flex items-baseline gap-1">
+                  <span
+                    className={cn("text-5xl font-black", {
+                      "text-primary-600": isRecommended,
+                      "text-blue-950": !isRecommended,
+                    })}
+                  >
+                    {formatPrice(priceWithDiscount)}
+                  </span>
+                  <span className="text-base text-gray-600 font-semibold">
+                    /mês
+                  </span>
+                </div>
+              </>
+            ) : (
+              <div className="flex items-baseline gap-1">
+                <span
+                  className={cn("text-5xl font-black", {
+                    "text-primary-600": isRecommended,
+                    "text-blue-950": !isRecommended,
+                  })}
+                >
+                  {formatPrice(price)}
+                </span>
+                <span className="text-base text-gray-600 font-semibold">
+                  /mês
+                </span>
+              </div>
+            )}
           </div>
           <p className="text-sm text-gray-400 font-semibold pb-6">
             Cobrado mensalmente
@@ -83,8 +112,10 @@ export function PlanCard({
           </div>
           <div className="flex justify-center mt-auto">
             <Button
+              onClick={() => onSelect(true, id)}
               variant={isRecommended ? "primary" : "secondary"}
               className={cn({ "shadow-cta-glow": isRecommended })}
+              disabled={!id}
             >
               Quero o plano {title}
             </Button>
