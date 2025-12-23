@@ -5,15 +5,12 @@ import { EmailValidationModal } from "../EmailValidationModal/EmailValidationMod
 import { CreateAccountModal } from "../CreateAccountModal/CreateAccountModal";
 
 import type { UserValidationFlowProps } from "./types";
-import { use } from "react";
-import { useGetPlans } from "../../hooks/useGetPlans";
-import { PlanCarousel } from "@/src/components/planCarousel";
+import { PlanCarousel } from "@/components/planCarousel";
 
-export function UserValidationFlow({ searchParams }: UserValidationFlowProps) {
-  const params = use(searchParams);
-  const couponId = params?.cupom;
-
-  const { data, isLoading: isLoadingPlans, error } = useGetPlans(couponId);
+export function UserValidationFlow({
+  plansData,
+  couponId,
+}: UserValidationFlowProps) {
   const {
     isEmailModalOpen,
     onSelecPlan,
@@ -23,33 +20,6 @@ export function UserValidationFlow({ searchParams }: UserValidationFlowProps) {
     handleCreateAccountModalChange,
     planId,
   } = useUserValidationFlow({ couponId });
-
-  //TODO: Arrumar depois de pronto
-  if (isLoadingPlans) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-primary-600 border-t-transparent rounded-full animate-spin" />
-          <p className="text-gray-600 font-semibold">Carregando planos...</p>
-        </div>
-      </div>
-    );
-  }
-
-  //TODO: Arrumar depois de pronto
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center flex flex-col gap-4">
-          <p className="text-red-500 font-semibold">
-            Erro ao carregar planos. Tente novamente mais tarde.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  const plans = data?.plans ?? [];
 
   return (
     <>
@@ -61,11 +31,11 @@ export function UserValidationFlow({ searchParams }: UserValidationFlowProps) {
             </p>
           </div>
           <div className="text-center flex flex-col gap-6">
-            {data?.coupon?.percentOff ? (
+            {plansData?.coupon?.percentOff ? (
               <h1 className="text-4-5xl md:text-6-5xl font-black text-blue-950 leading-none md:leading-6-5xl ">
                 Invista em você com{" "}
                 <span className="text-primary-600">
-                  {data?.coupon?.percentOff}% <br /> de desconto
+                  {plansData?.coupon?.percentOff}% <br /> de desconto
                 </span>
               </h1>
             ) : (
@@ -84,7 +54,12 @@ export function UserValidationFlow({ searchParams }: UserValidationFlowProps) {
           </div>
         </div>
 
-        <PlanCarousel plans={plans} handleEmailModalChange={onSelecPlan} />
+        {plansData?.plans && (
+          <PlanCarousel
+            plans={plansData?.plans}
+            handleEmailModalChange={onSelecPlan}
+          />
+        )}
       </div>
 
       <EmailValidationModal

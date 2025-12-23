@@ -1,3 +1,4 @@
+"use server";
 import * as planResources from "./planResources";
 import { GetPlansResponse } from "./planTypes";
 

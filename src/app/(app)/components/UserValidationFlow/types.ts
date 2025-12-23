@@ -1,7 +1,8 @@
+import { GetPlansResponse } from "@/domain/Plan/planTypes";
+
 export type UserValidationFlowProps = {
-  searchParams: Promise<{
-    cupom: string;
-  }>;
+  plansData: GetPlansResponse;
+  couponId?: string;
 };
 
 export type UseUserValidationFlowProps = {
