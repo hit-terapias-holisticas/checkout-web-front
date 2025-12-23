@@ -11,13 +11,13 @@ import { emailValidationSchema } from "@/src/domain/User/userSchema";
 import { AppError, AppErrorAction } from "@/src/utils/errors/AppError";
 
 export function useUserValidationFlow({
+  planId,
   couponId,
 }: UseUserValidationFlowProps) {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [isCreateAccountModalOpen, setIsCreateAccountModalOpen] =
     useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [planId, setPlanId] = useState<string | undefined>(undefined);
 
   const form = useForm<EmailValidationFormData>({
     resolver: zodResolver(emailValidationSchema),
@@ -29,7 +29,7 @@ export function useUserValidationFlow({
     try {
       const response = await userService.checkUserAlreadyExists({
         email: data.email,
-        planId: planId!,
+        planId,
         couponId,
       });
 
@@ -65,11 +65,12 @@ export function useUserValidationFlow({
     }
   };
 
-  const onSelecPlan = (open: boolean, planId?: string) => {
+  const openEmailModal = () => {
+    setIsEmailModalOpen(true);
+  };
+
+  const handleEmailModalChange = (open: boolean) => {
     setIsEmailModalOpen(open);
-    if (planId) {
-      setPlanId(planId);
-    }
     if (!open) {
       form.reset();
     }
@@ -81,7 +82,7 @@ export function useUserValidationFlow({
 
   return {
     isEmailModalOpen,
-    onSelecPlan,
+    handleEmailModalChange,
     emailForm: {
       errors: form.formState.errors,
       register: form.register,
@@ -93,6 +94,6 @@ export function useUserValidationFlow({
     isCreateAccountModalOpen,
     handleCreateAccountModalChange,
 
-    planId,
+    openEmailModal,
   };
 }

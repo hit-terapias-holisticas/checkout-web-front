@@ -1,9 +1,9 @@
 export type UserValidationFlowProps = {
-  searchParams: Promise<{
-    cupom: string;
-  }>;
+  planId: string;
+  couponId?: string;
 };
 
 export type UseUserValidationFlowProps = {
+  planId: string;
   couponId?: string;
 };

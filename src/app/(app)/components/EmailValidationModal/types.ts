@@ -6,6 +6,6 @@ export type EmailValidationModalProps = {
   isLoading: boolean;
   errors: FieldErrors<EmailValidationFormData>;
   register: UseFormRegister<EmailValidationFormData>;
-  onOpenChange: (open: boolean, planId?: string) => void;
+  onOpenChange: (open: boolean) => void;
   onSubmit: (e: React.FormEvent) => void;
 };
