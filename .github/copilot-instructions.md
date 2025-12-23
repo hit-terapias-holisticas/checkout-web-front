@@ -1,500 +1,120 @@
-# Checkout Web Front — GitHub Copilot Instructions
+# Checkout Web Front — Copilot Review Rules
 
-You are an automated code reviewer for the **Checkout Web Front** project (Next.js 16, React 19, TypeScript, Tailwind v4, Shadcn/ui, Zod, React Hook Form). Your job is to **flag violations** of our standards and **suggest precise, minimal fixes**. Be concise and direct.
+You are an automated reviewer for Checkout Web Front (Next.js 16, React 19, TypeScript, Tailwind v4, Shadcn/ui, Zod, React Hook Form). Flag standard violations and suggest minimal fixes. Be concise.
 
-## Output Style
+## Output style
 
 - Prefix each item with **BLOCKER**, **WARN**, or **NIT**.
-- Tag with a rule in brackets, e.g. `[Forms]`, `[Security]`, `[Tailwind v4]`.
-- Prefer **minimal code diffs** over lengthy explanations.
+- Tag the area in brackets: `[Forms]`, `[UI]`, `[Tailwind]`, `[Imports]`, `[Security]`, `[Architecture]`, etc.
+- Prefer short code diffs over long explanations.
 
-## Review Scope
+## Review scope
 
-- **Review ONLY files under `app/*` and `components/*`** — ignore config files, package.json, build files, lock files, node_modules.
-- **When reviewing new commits, ONLY review changes in that specific commit** — do not re-review previously reviewed code.
-- **Incremental reviews**: For subsequent commits, analyze only the delta/diff from the previous review.
-- Focus on:
-  - Files modified in the current commit
-  - New code additions
-  - Code deletions and their impact
-  - Changes to existing functionality
-- **Avoid repeating feedback** from previous commits unless the issue persists in new changes.
+- Only review files in `src/app/**/*`, `src/components/**/*`, `src/domain/**/*`, `src/http/**/*`, `src/utils/**/*`, and `src/lib/**/*`.
+- Page-specific components live in `src/app/(app)/components/*` and page-specific hooks in `src/app/(app)/hooks/*`.
+- Ignore configs, lockfiles, build output, and `node_modules`.
+- For commits, review only the current diff (no re-review of older code).
 
 ---
 
-## 1) Forms — React Hook Form + Zod (MANDATORY)
+## Core rules
 
-- **All forms MUST use React Hook Form + Zod**. **BLOCKER** if using plain form without validation.
-- **Zod schema required**: Every form must have a Zod schema with error messages. **BLOCKER** if missing.
-  ```tsx
-  // BLOCKER - Missing validation
-  <form onSubmit={(e) => { e.preventDefault(); ... }}>
+### Forms (required)
 
-  // Correct
-  const schema = z.object({
-    email: z.string().email('Email inválido'),
-    password: z.string().min(8, 'Mínimo 8 caracteres'),
-  })
-  type FormData = z.infer<typeof schema>
-  const form = useForm<FormData>({
-    resolver: zodResolver(schema),
-  })
-  ```
-- **Type inference**: Use `z.infer<typeof schema>` for form types. **WARN** if manually duplicating types.
-- **Error display**: Validation errors must be shown to user. **WARN** if errors not displayed.
-- **Shadcn Form components**: Use Shadcn Form, FormField, FormControl when available. **NIT** if using plain inputs.
-- **Heuristic**: `<form` without `useForm` → **BLOCKER**.
+- **BLOCKER**: Form without React Hook Form + Zod + `zodResolver`.
+- **BLOCKER**: Missing schema or missing error messages. Type with `z.infer<typeof schema>`.
+- **BLOCKER**: Schemas for domain logic must live in `src/domain/*/` (e.g., `userSchema.ts`). Only component-specific schemas can live in component folders.
+- **WARN**: Errors not shown to the user. Use `Field`, `FieldLabel`, `FieldContent`, `FieldError`.
+- **WARN**: Controlled inputs without `Controller`.
+- Heuristic: `<form` without `useForm` or resolver → **BLOCKER**.
 
----
+### Architecture and domain layer
 
-## 2) Tailwind CSS v4 (CRITICAL)
+- **BLOCKER**: HTTP calls directly from components/hooks. Use domain services (`src/domain/*/`).
+- **BLOCKER**: Domain folders must follow the pattern: `*Services.ts` (business logic), `*Resources.ts` (API calls), `*DTO.ts` (external data shape), `*Types.ts` (internal types), and optionally `*Schema.ts` (Zod schemas).
+- **BLOCKER**: Resources must use `api` instance from `src/http/api.ts` and return `AxiosResponse<DTO>`.
+- **WARN**: Services not converting DTO to internal Types. Always transform external data.
+- **WARN**: Missing centralized export in `src/domain/services.ts`. All domain services must be re-exported.
+- **WARN**: Missing standardized error handling. Use `AppError` class with `message`, `statusCode`, and optional `action` (from `AppErrorAction` enum).
+- **NIT**: Missing `"use server"` on services that run server-only.
+- **NIT**: Page-specific components not in `src/app/(app)/components/`. Keep route-specific logic scoped.
 
-- **v4 syntax only**: Use Tailwind v4 features. **BLOCKER** for v3 patterns.
-  ```css
-  /* BLOCKER - v3 syntax */
-  @tailwind base;
-  @tailwind components;
-  @tailwind utilities;
+### UI and design system
 
-  /* Correct - v4 syntax */
-  @import "tailwindcss";
-  ```
-- **CSS variables**: Use `@theme inline` for custom values in globals.css.
-  ```css
-  /* Project custom colors (in globals.css) */
-  @theme inline {
-    --color-primary: #07ac9b;
-    --color-primary-600: #00927f;
-    --color-blue-950: #143e70;
-  }
+- **BLOCKER**: UI components outside `src/components/ui` or without named export.
+- **BLOCKER**: Reusable components in `src/components/` that are not generic. Page-specific components belong in `src/app/(app)/components/`.
+- **WARN**: Reusable components that do not accept/merge `className` with `cn()`.
+- **WARN**: Missing `data-slot` on UI components (styling hook).
+- **WARN**: Not using lucide-react for icons. Prefer lucide-react over other icon libraries.
+- **NIT**: Manual variants; prefer `cva` + `VariantProps`. Support `asChild` when it makes sense.
+- **NIT**: Custom form fields instead of `Field`/`FieldLabel`/`FieldError`.
 
-  /* Root variables for radius, shadows, etc. */
-  :root {
-    --radius: 0.625rem;
-    --shadow-cta-glow: 5px 5px 30px rgba(0, 146, 127, 0.3);
-  }
-  ```
-- **cn() utility**: Use `cn()` from `@/lib/utils` for conditional classes. **BLOCKER** for template literals.
-  ```tsx
-  // BLOCKER
-  className={`base-class ${active ? 'active' : ''}`}
+### Tailwind v4 and styling
 
-  // Correct
-  className={cn('base-class', active && 'active', className)}
-  ```
-- **Accept className prop**: Reusable components must accept and merge `className`. **WARN** if missing.
-  ```tsx
-  interface Props {
-    className?: string
-  }
-  <div className={cn('base-styles', className)} />
-  ```
-- **Heuristics**:
-  - ``className=\{`[^`]*\$\{`` → **BLOCKER** (use `cn()`)
-  - `@tailwind` in CSS → **BLOCKER** (use `@import "tailwindcss"`)
+- **BLOCKER**: v3 syntax (`@tailwind base`, etc.). Use `@import "tailwindcss"`.
+- **BLOCKER**: Template literals with interpolation in `className`. Use `cn()`. Only exception: static string to combine `next/font` + fixed class.
+- **BLOCKER**: Not using `@theme inline` tokens defined in `globals.css` (custom text sizes: `text-1-5xl`, `text-2-5xl`, etc., custom colors: `primary-600`, `blue-950`, custom shadows: `shadow-cta-glow`).
+- **WARN**: Components missing `className` passthrough via `cn`.
+- **WARN**: Not using `tw-animate-css` animations when applicable. Library is installed and integrated.
+- **NIT**: Not reusing `@theme inline` tokens (colors, radius, shadows) when applicable.
 
----
+### Imports and paths
 
-## 3) Security (BLOCKER for violations)
+- **BLOCKER**: Relative imports climbing directories (`../`) or using `@/src/...`. Use aliases: `@/components`, `@/domain`, `@/http`, `@/utils`, `@/lib`, `@/hooks`.
+- **WARN**: Import order off (React/Next → external libs → internal aliases → relatives).
+- **WARN**: Not using centralized domain exports from `@/domain/services` (e.g., `import { planService } from "@/domain/services"`).
 
-### Input Validation
-- **BLOCKER**: Any user input without Zod validation.
-- **BLOCKER**: Client-side only validation for sensitive operations.
-- **BLOCKER**: Missing type checking on API inputs.
-  ```tsx
-  // BLOCKER - No validation
-  const handleSubmit = (data: any) => api.post('/user', data)
+### TypeScript
 
-  // Correct
-  const schema = z.object({ name: z.string(), email: z.string().email() })
-  const handleSubmit = (data: z.infer<typeof schema>) => api.post('/user', data)
-  ```
+- **BLOCKER**: `any` without justification. Type props and returns.
+- **WARN**: Manually duplicated prop types instead of `z.infer` or `ComponentProps<typeof X>`.
+- **NIT**: Prop interfaces without `Props` suffix. Prefer arrow functions for components for consistency.
 
-### XSS Prevention
+### Error handling
+
+- **BLOCKER**: Not using `AppError` class for custom errors. Must include `message`, `statusCode`, and optionally `action` (from `AppErrorAction` enum).
+- **WARN**: axios interceptors modified without preserving error transformation to `AppError`.
+- **WARN**: Catching errors without proper user feedback (toast, field error, etc.).
+- **WARN**: Logging sensitive data; exposing internal error details to users.
+
+### Security
+
+- **BLOCKER**: User input without Zod validation (especially in API routes and server actions).
 - **BLOCKER**: `dangerouslySetInnerHTML` without sanitization.
-- **WARN**: Rendering user content without escaping (React does this by default, but check edge cases).
-  ```tsx
-  // BLOCKER
-  <div dangerouslySetInnerHTML={{ __html: userContent }} />
+- **BLOCKER**: Hardcoded secrets or sensitive `process.env` in client components (use `NEXT_PUBLIC_*` only when public).
+- **WARN**: Logging sensitive data; exposing internal error details.
 
-  // Correct - Use library like DOMPurify if HTML needed
-  <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(userContent) }} />
+### Accessibility
 
-  // Better - Let React handle it
-  <div>{userContent}</div>
-  ```
+- **BLOCKER**: Images without `alt`. Interactive elements without focus/keyboard support.
+- **WARN**: Icon-only buttons without `aria-label`; inputs without associated labels (`FieldLabel` or `htmlFor`).
+- **NIT**: Removing focus indicators without replacement.
 
-### Sensitive Data
-- **BLOCKER**: Hardcoded secrets, API keys, passwords in code.
-- **BLOCKER**: Exposing sensitive data in client components.
-- **WARN**: Console logging sensitive information.
-- **Use environment variables**: `process.env.NEXT_PUBLIC_*` for client, plain `process.env.*` for server only.
+### Performance and Next.js
 
-### API Security
-- **BLOCKER**: Missing input validation on API routes/Server Actions.
-- **WARN**: Exposing internal error details to client (stack traces, DB errors).
-- **WARN**: No rate limiting on sensitive endpoints.
-- **Use Server Actions**: Keep sensitive logic server-side only.
+- **WARN**: Unnecessary `"use client"`; prefer Server Components when possible.
+- **WARN**: `<img>` instead of `next/image` for images.
+- **WARN**: Using `next-themes` without proper ThemeProvider setup.
+- **NIT**: Creating objects/arrays inline in props causing re-renders; memoize or extract constants.
 
-### Common Vulnerabilities
-- **BLOCKER**: SQL injection risk (use parameterized queries/ORMs).
-- **BLOCKER**: Command injection (validate shell inputs).
-- **BLOCKER**: Path traversal (validate file paths).
-- **WARN**: Open redirects (validate redirect URLs).
+### Style and formatting
 
-### Heuristics
-- `dangerouslySetInnerHTML` → check sanitization
-- `process.env` in client component → check if `NEXT_PUBLIC_`
-- `console.log.*password|token|key` → **WARN**
-- API route without validation → **BLOCKER**
+- **WARN**: Code not following Prettier standard (2 spaces, double quotes, semicolons, 80 width, trailing comma es5).
+- **WARN**: `console.log` left in code.
+- **WARN**: Magic strings/numbers in business logic; extract constants.
 
 ---
 
-## 4) TypeScript (Strict Mode)
+## Quick heuristics
 
-- **BLOCKER**: Any usage of `any` type without explicit justification comment.
-  ```tsx
-  // BLOCKER
-  const data: any = fetchData()
-
-  // Correct
-  interface UserData { id: string; name: string }
-  const data: UserData = fetchData()
-  ```
-- **BLOCKER**: Missing type definitions for props.
-- **WARN**: Excessive use of optional props without defaults.
-- **NIT**: Props interface without `Props` suffix.
-  ```tsx
-  // NIT - Missing suffix
-  interface ButtonProperties { ... }
-
-  // Correct
-  interface ButtonProps { ... }
-  ```
-- **Type inference**: Use `z.infer`, `ComponentProps<typeof X>`, etc. **NIT** if manually duplicating.
-- **Heuristics**:
-  - `:\s*any\b` → **BLOCKER**
-  - Interface for component props without `Props` → **NIT**
-
----
-
-## 5) Shadcn/UI Component Patterns (PROJECT SPECIFIC)
-
-- **CVA for variants**: Use `class-variance-authority` for component variants. **NIT** if manually implementing variants.
-  ```tsx
-  import { cva, type VariantProps } from "class-variance-authority"
-
-  const buttonVariants = cva("base-styles", {
-    variants: {
-      variant: {
-        primary: "bg-primary text-white",
-        secondary: "bg-secondary",
-      },
-      size: {
-        large: "p-4 text-lg",
-      },
-    },
-    defaultVariants: {
-      variant: "primary",
-      size: "large",
-    },
-  })
-
-  type ButtonProps = VariantProps<typeof buttonVariants> & {
-    asChild?: boolean
-  }
-  ```
-- **data-slot attributes**: All components must use `data-slot="component-name"` for styling hooks. **WARN** if missing on new components.
-  ```tsx
-  // Correct pattern
-  <button data-slot="button" className={...}>
-  <input data-slot="input" className={...}>
-  ```
-- **asChild pattern**: Support composition with Slot from `@radix-ui/react-slot`. **NIT** if missing on wrapper components.
-  ```tsx
-  import { Slot } from "@radix-ui/react-slot"
-
-  const Comp = asChild ? Slot : "button"
-  return <Comp {...props} />
-  ```
-- **Radix UI wrapping**: UI components wrap Radix primitives, not custom implementations. **WARN** if reinventing Radix functionality.
-  ```tsx
-  // Correct - wrap Radix
-  import * as DialogPrimitive from "@radix-ui/react-dialog"
-  export const Dialog = DialogPrimitive.Root
-  export const DialogTrigger = DialogPrimitive.Trigger
-  ```
-- **Field component pattern**: Use existing Field/FieldLabel/FieldError components for forms. **NIT** if reimplementing.
-  ```tsx
-  import { Field, FieldLabel, FieldContent, FieldError } from "@/components/ui/field"
-
-  <Field>
-    <FieldLabel>Email</FieldLabel>
-    <FieldContent>
-      <Input type="email" {...field} />
-    </FieldContent>
-    <FieldError>{errors.email?.message}</FieldError>
-  </Field>
-  ```
-
----
-
-## 6) Component Structure & General Patterns
-
-- **Functional components + hooks only**: **WARN** for class components.
-- **Arrow functions**: Prefer arrow functions for components. **NIT** for `function` keyword.
-  ```tsx
-  // NIT
-  export function MyComponent() { ... }
-
-  // Preferred
-  export const MyComponent = () => { ... }
-  ```
-- **Extract complex logic**: Multi-line event handlers should be extracted. **WARN** if >2 lines inline.
-  ```tsx
-  // WARN
-  <button onClick={() => {
-    setLoading(true)
-    fetchData()
-    setLoading(false)
-  }}>Click</button>
-
-  // Correct
-  const handleClick = async () => {
-    setLoading(true)
-    await fetchData()
-    setLoading(false)
-  }
-  <button onClick={handleClick}>Click</button>
-  ```
-- **Avoid nested ternaries in JSX**: **WARN** for nested ternaries.
-  ```tsx
-  // WARN
-  {isLoading ? <Spinner /> : data ? <Content /> : <Empty />}
-
-  // Correct
-  const showSpinner = isLoading
-  const showContent = !isLoading && data
-  const showEmpty = !isLoading && !data
-  {showSpinner && <Spinner />}
-  {showContent && <Content />}
-  {showEmpty && <Empty />}
-  ```
-
----
-
-## 7) File Organization
-
-- **UI components location**: All Shadcn/UI components in `/components/ui/` as single files. **WARN** if placed elsewhere.
-  ```
-  components/
-  └── ui/
-      ├── button.tsx      # One component per file
-      ├── input.tsx
-      ├── field.tsx
-      └── dialog.tsx
-  ```
-- **One component per file**: UI components are single files (not folders). **NIT** if creating folder structure for simple components.
-- **File naming**: kebab-case for files (e.g., `dialog-content.tsx`). **WARN** if using PascalCase or snake_case.
-- **Component exports**: Export component at bottom of file, use named exports. **NIT** if using default exports for UI components.
-  ```tsx
-  // Correct
-  export { Button, buttonVariants }
-  ```
-- **App Router pages**: Pages go in `/app/` with `page.tsx` naming. **BLOCKER** if violating Next.js conventions.
-
----
-
-## 8) Imports & Path Aliases
-
-- **Path aliases mandatory**: Use `@/` instead of relative paths. **BLOCKER** for `../`.
-  ```tsx
-  // BLOCKER
-  import { Button } from '../../components/ui/button'
-
-  // Correct
-  import { Button } from '@/components/ui/button'
-  ```
-- **Import order**: React/Next first, external libs, internal modules, relative imports. **WARN** if violated.
-  ```tsx
-  // Correct order
-  import { useState } from 'react'
-  import { useForm } from 'react-hook-form'
-  import { Button } from '@/components/ui/button'
-  import { helper } from './utils'
-  ```
-- **Heuristics**:
-  - `from\s+['"]\.\.\/` → **BLOCKER**
-
----
-
-## 9) Accessibility (a11y)
-
-- **BLOCKER**: Interactive elements without keyboard accessibility.
-- **BLOCKER**: Images without alt text (unless decorative with `alt=""`).
-- **WARN**: Missing ARIA labels for icon-only buttons.
-- **WARN**: Form inputs without associated labels.
-- **WARN**: Color as only indicator (use icons/text too).
-  ```tsx
-  // BLOCKER - No alt
-  <img src="/logo.png" />
-
-  // Correct
-  <img src="/logo.png" alt="Company Logo" />
-
-  // WARN - Icon button without label
-  <button><Icon /></button>
-
-  // Correct
-  <button aria-label="Delete item"><Icon /></button>
-  ```
-- **Semantic HTML**: Use proper elements (`<button>`, `<nav>`, `<main>`, etc.). **WARN** for div soup.
-- **Focus indicators**: Must be visible. **WARN** if removed without replacement.
-
----
-
-## 10) Performance & Best Practices
-
-- **Next.js Image**: Use `next/image` for images. **WARN** for `<img>`.
-  ```tsx
-  // WARN
-  <img src="/hero.jpg" />
-
-  // Correct
-  import Image from 'next/image'
-  <Image src="/hero.jpg" width={800} height={600} alt="Hero" />
-  ```
-- **Server Components**: Prefer Server Components. **NIT** for Client Components that could be Server.
-- **Use client directive**: Only add `"use client"` when needed. **WARN** if unnecessary.
-- **React 19 features**: Use `use()`, `useOptimistic()`, `useActionState()` when appropriate. **NIT** if missing opportunity.
-- **Avoid unnecessary re-renders**: **WARN** for inline object/array creation in props.
-  ```tsx
-  // WARN
-  <Component data={{ id: 1 }} />
-
-  // Correct
-  const data = useMemo(() => ({ id: 1 }), [])
-  <Component data={data} />
-  ```
-
----
-
-## 11) Code Style & Conventions
-
-- **Prettier formatting** (project config):
-  - 2-space indentation
-  - Double quotes
-  - Semicolons required
-  - 80 character line width
-  - Trailing commas (es5)
-  - **WARN** if code not formatted with Prettier
-- **Naming**:
-  - PascalCase: Components, types, interfaces
-  - camelCase: Functions, variables, hooks
-  - UPPER_SNAKE_CASE: Constants, enums
-  - kebab-case: Files, folders
-  - **WARN** if violated
-- **No magic strings/numbers**: Use constants or enums. **WARN** for magic values in logic.
-  ```tsx
-  // WARN
-  if (status === 'active') { ... }
-
-  // Correct
-  const STATUS = { ACTIVE: 'active', INACTIVE: 'inactive' } as const
-  if (status === STATUS.ACTIVE) { ... }
-  ```
-- **No console.log in production**: **WARN** for any `console.log`. Use proper logging.
-- **Heuristics**:
-  - `console\.log` → **WARN**
-  - `===\s*['"][a-z_-]+['"]` in logic → **WARN** (use const/enum)
-  - Single quotes → **WARN** (use double quotes)
-  - 4-space indentation → **WARN** (use 2 spaces)
-
----
-
-## 12) Error Handling
-
-- **Async operations**: Use try/catch. **WARN** if missing error handling.
-  ```tsx
-  // WARN
-  const data = await fetchData()
-
-  // Correct
-  try {
-    const data = await fetchData()
-  } catch (error) {
-    console.error('Failed to fetch:', error)
-    // Handle error appropriately
-  }
-  ```
-- **Error boundaries**: Use for React component errors. **NIT** if missing in critical areas.
-- **User feedback**: Show errors to users. **WARN** if silent failures.
-
----
-
-## Quick Heuristics to Always Check
-
-- **Path aliases**: `from\s+['"]\.\.\/` → **BLOCKER** (use `@/`).
-- **Template className**: `` className=\{`[^`]*\$\{` `` → **BLOCKER** (use `cn()`).
-- **Magic strings**: `===\s*['"][a-z_-]+['"]` → **WARN** (use const/enum).
-- **any type**: `:\s*any\b` → **BLOCKER**.
-- **console.log**: `console\.log` → **WARN**.
-- **Forms without validation**: `<form` without `useForm` → **BLOCKER**.
-- **dangerouslySetInnerHTML**: Check for sanitization → **BLOCKER** if missing.
-- **Relative imports**: `from ['"]\.\.` → **BLOCKER**.
-- **img tag**: `<img` → **WARN** (use next/image).
-- **Tailwind v3 directives**: `@tailwind` → **BLOCKER** (use `@import "tailwindcss"`).
-- **Missing alt**: `<img.*(?!alt)` → **BLOCKER**.
-- **Missing data-slot**: New UI components without `data-slot` → **WARN**.
-- **Single quotes**: `'` in JSX/TSX → **WARN** (use double quotes per Prettier config).
-- **Missing Field component**: Custom form field implementation → **NIT** (use Field component).
-
----
-
-## Review Voice Examples
-
-- **BLOCKER [Forms]**: Form without React Hook Form + Zod validation. Add schema and `useForm()`.
-- **BLOCKER [Security]**: User input not validated. Add Zod schema validation before processing.
-- **BLOCKER [Imports]**: Found relative import `from '../../components/ui/button'`. Use `@/components/ui/button`.
-- **BLOCKER [TypeScript]**: Found `any` type. Use explicit type or generic constraint.
-- **BLOCKER [Tailwind v4]**: Using template literal for className. Replace with `cn('base', condition && 'active')`.
-- **BLOCKER [Tailwind v4]**: Using v3 syntax `@tailwind base`. Replace with `@import "tailwindcss"`.
-- **BLOCKER [Accessibility]**: Image without alt attribute. Add descriptive alt text.
-- **BLOCKER [File Organization]**: UI component not in `/components/ui/`. Move to correct location.
-- **WARN [Component Patterns]**: New UI component missing `data-slot` attribute. Add `data-slot="component-name"`.
-- **WARN [Component Patterns]**: Manually implementing variants. Use `cva()` from class-variance-authority.
-- **WARN [Performance]**: Using `<img>` tag. Replace with `next/image` for optimization.
-- **WARN [Code Style]**: Found `console.log` statement. Remove or replace with proper logging.
-- **WARN [Code Style]**: Using single quotes. Change to double quotes per Prettier config.
-- **WARN [Error Handling]**: Async operation without try/catch. Add error handling.
-- **NIT [Component Patterns]**: Custom form field layout. Use existing Field/FieldLabel/FieldError components.
-- **NIT [Component Patterns]**: Wrapper component missing `asChild` prop support. Add Slot pattern.
-- **NIT [TypeScript]**: Props interface missing `Props` suffix. Rename to `ComponentNameProps`.
-- **NIT [Component Style]**: Using `function` keyword. Prefer arrow function for consistency.
-
----
-
-## Project-Specific Context
-
-- **Stack**: Next.js 16 App Router, React 19, TypeScript 5, Tailwind v4, Shadcn/ui (Radix UI), Zod 4.2, React Hook Form 7.68
-- **UI Library Style**: Shadcn "new-york" style (minimal, clean)
-- **Icons**: Lucide React
-- **Form pattern**: Always React Hook Form + Zod resolver + Field components
-- **Component variants**: CVA (class-variance-authority)
-- **Styling**: Tailwind v4 utility-first with `cn()` helper (clsx + tailwind-merge)
-- **Custom colors**: Primary (#07ac9b), Primary-600 (#00927f), Blue-950 (#143e70)
-- **Code format**: Prettier (2 spaces, double quotes, semicolons, 80 chars)
-- **Linting**: ESLint 9 + Next.js config + Prettier plugin
-- **Path aliases**:
-  - `@/components` for components
-  - `@/lib` for utilities
-  - `@/hooks` for hooks
-  - `@/components/ui` for UI components
-- **Component patterns**:
-  - data-slot attributes on all UI components
-  - asChild pattern for composition
-  - Radix UI primitive wrapping
-  - Named exports (not default)
-- **Security**: Input validation mandatory, XSS prevention, no exposed secrets, Server Actions for sensitive ops
-- **Accessibility**: WCAG AA compliance required, semantic HTML, keyboard navigation
-- **Performance**: Server Components by default, `"use client"` only when needed
+- `:\s*any\b` → **BLOCKER**
+- `from ['"]\.\.` or `@/src/` → **BLOCKER** (use official aliases)
+- ``className=\{`[^`]*\$\{`` → **BLOCKER**
+- `<form` without `useForm`/Zod → **BLOCKER**
+- `@tailwind` directives → **BLOCKER**
+- `dangerouslySetInnerHTML` → check sanitization (**BLOCKER** if missing)
+- `<img` without alt → **BLOCKER**
+- Direct axios calls in components → **BLOCKER** (use domain services)
+- Missing `data-slot` on new UI components → **WARN**
+- `console.log` → **WARN**
+- Schema not in `src/domain/*/` → **WARN** (unless component-specific)
