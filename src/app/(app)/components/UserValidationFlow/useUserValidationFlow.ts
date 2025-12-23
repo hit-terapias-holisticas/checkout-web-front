@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,18 +35,15 @@ export function useUserValidationFlow({
         couponId,
       });
 
-      if (response.linkToPaymentPage) {
-        window.location.assign(response.linkToPaymentPage);
-        return;
-      }
-
-      if (!response.linkToPaymentPage && response.error) {
+      if (!response.success && response.error) {
         throw new AppError(
-          response.error.message,
-          response.error.statusCode,
-          response.error.action
+          response.error?.message,
+          response.error?.statusCode,
+          response.error?.action
         );
       }
+
+      window.location.assign(response.linkToPaymentPage);
     } catch (error) {
       if (error instanceof AppError) {
         if (error.action === AppErrorAction.RedirectToCreateUser) {
@@ -54,9 +53,10 @@ export function useUserValidationFlow({
         }
 
         if (error.action === AppErrorAction.UserAlreadyHasAPlan) {
+          // TODO: Abrir modal com a mensagem
           toast.success("Parabéns!! Você já possui um plano ativo.");
+          return;
         }
-        return;
       }
 
       toast.error("Ocorreu um erro ao verificar seu email. Tente novamente.");

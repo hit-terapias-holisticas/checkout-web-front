@@ -3,42 +3,59 @@
 import { AppError } from "@/src/utils/errors/AppError";
 import { CheckUserAlreadyExistsDTO, CreateUserDTO } from "./userDTO";
 import * as userResources from "./userResources";
+import {
+  CheckUserAlreadyExistsServiceResponse,
+  CreateUserServiceResponse,
+} from "./userTypes";
 
-export async function createUser(payload: CreateUserDTO) {
+export async function createUser(
+  payload: CreateUserDTO
+): Promise<CreateUserServiceResponse> {
   try {
     const { data } = await userResources.createUserResource(payload);
 
     return {
       linkToPaymentPage: data.linkToPaymentPage,
+      success: true,
     };
   } catch (error) {
-    if (error instanceof AppError) {
-      throw new AppError(error.message, error.statusCode, error?.action);
-    }
+    const statusCode = error instanceof AppError ? error.statusCode : 400;
+    const action = error instanceof AppError ? error.action : undefined;
 
-    throw error;
+    return {
+      success: false,
+      linkToPaymentPage: "",
+      error: {
+        message: "Ocorreu um erro ao criar seu usuário. Tente novamente.",
+        statusCode,
+        action,
+      },
+    };
   }
 }
 
 export async function checkUserAlreadyExists(
   payload: CheckUserAlreadyExistsDTO
-) {
+): Promise<CheckUserAlreadyExistsServiceResponse> {
   try {
     const response = await userResources.checkUserAlreadyExists(payload);
 
     return {
+      success: true,
       linkToPaymentPage: response.data.linkToPaymentPage,
     };
   } catch (error) {
-    if (error instanceof AppError) {
-      return {
-        linkToPaymentPage: null,
-        error: new AppError(error.message, error.statusCode, error?.action),
-      };
-    }
+    const statusCode = error instanceof AppError ? error.statusCode : 400;
+    const action = error instanceof AppError ? error.action : undefined;
 
     return {
-      linkToPaymentPage: null,
+      success: false,
+      linkToPaymentPage: "",
+      error: {
+        message: "Ocorreu um erro ao verificar seu email. Tente novamente.",
+        statusCode,
+        action,
+      },
     };
   }
 }

@@ -47,7 +47,7 @@ export function useCreateAccountModal({
 
   const onSubmit = async (data: CreateAccountFormData) => {
     try {
-      const result = await userService.createUser({
+      const response = await userService.createUser({
         name: data.name,
         email: data.email,
         password: data.password,
@@ -56,7 +56,13 @@ export function useCreateAccountModal({
         terms: data.acceptTerms,
       });
 
-      window.location.assign(result.linkToPaymentPage);
+      if (!response.success && response.error) {
+        throw new Error(
+          "Ocorreu um erro ao criar sua conta. Por favor, tente novamente."
+        );
+      }
+
+      window.location.assign(response.linkToPaymentPage);
     } catch {
       toast.error(
         "Ocorreu um erro ao criar sua conta. Por favor, tente novamente."
