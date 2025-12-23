@@ -13,7 +13,7 @@ export function UserValidationFlow({ searchParams }: UserValidationFlowProps) {
   const params = use(searchParams);
   const couponId = params?.cupom;
 
-  const { data, isLoading: isLoadingPlans, error } = useGetPlans(couponId);
+  // const { data, isLoading: isLoadingPlans, error } = useGetPlans(couponId);
   const {
     isEmailModalOpen,
     onSelecPlan,
@@ -24,36 +24,36 @@ export function UserValidationFlow({ searchParams }: UserValidationFlowProps) {
     planId,
   } = useUserValidationFlow({ couponId });
 
-  //TODO: Arrumar depois de pronto
-  if (isLoadingPlans) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-primary-600 border-t-transparent rounded-full animate-spin" />
-          <p className="text-gray-600 font-semibold">Carregando planos...</p>
-        </div>
-      </div>
-    );
-  }
+  // //TODO: Arrumar depois de pronto
+  // if (isLoadingPlans) {
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center bg-gray-50">
+  //       <div className="flex flex-col items-center gap-4">
+  //         <div className="w-10 h-10 border-4 border-primary-600 border-t-transparent rounded-full animate-spin" />
+  //         <p className="text-gray-600 font-semibold">Carregando planos...</p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
-  //TODO: Arrumar depois de pronto
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center flex flex-col gap-4">
-          <p className="text-red-500 font-semibold">
-            Erro ao carregar planos. Tente novamente mais tarde.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // //TODO: Arrumar depois de pronto
+  // if (error) {
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center bg-gray-50">
+  //       <div className="text-center flex flex-col gap-4">
+  //         <p className="text-red-500 font-semibold">
+  //           Erro ao carregar planos. Tente novamente mais tarde.
+  //         </p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
-  const plans = data?.plans ?? [];
+  // const plans = data?.plans ?? [];
 
   return (
     <>
-      <div className="min-h-screen flex flex-col items-center bg-gray-50 pt-10 gap-6 md:gap-8">
+      {/* <div className="min-h-screen flex flex-col items-center bg-gray-50 pt-10 gap-6 md:gap-8">
         <div className="px-4 flex flex-col items-center gap-6">
           <div className="bg-primary-600/10 px-8 py-2 rounded-full">
             <p className="text-primary-600 text-sm font-bold">
@@ -85,7 +85,7 @@ export function UserValidationFlow({ searchParams }: UserValidationFlowProps) {
         </div>
 
         <PlanCarousel plans={plans} handleEmailModalChange={onSelecPlan} />
-      </div>
+      </div> */}
 
       <EmailValidationModal
         isOpen={isEmailModalOpen}

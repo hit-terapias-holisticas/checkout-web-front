@@ -45,6 +45,7 @@ export async function checkUserAlreadyExists(
       linkToPaymentPage: response.data.linkToPaymentPage,
     };
   } catch (error) {
+    console.log("aqui => ", error);
     const statusCode = error instanceof AppError ? error.statusCode : 400;
     const action = error instanceof AppError ? error.action : undefined;
 

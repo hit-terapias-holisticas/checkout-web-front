@@ -15,7 +15,7 @@ import { AppError, AppErrorAction } from "@/src/utils/errors/AppError";
 export function useUserValidationFlow({
   couponId,
 }: UseUserValidationFlowProps) {
-  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(true);
   const [isCreateAccountModalOpen, setIsCreateAccountModalOpen] =
     useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -28,10 +28,11 @@ export function useUserValidationFlow({
   const onEmailSubmit = async (data: EmailValidationFormData) => {
     setIsLoading(true);
 
+    console.log(data);
     try {
       const response = await userService.checkUserAlreadyExists({
         email: data.email,
-        planId: planId!,
+        planId: "price_1SflTDEfQKiiS0LMbnoNxg1C",
         couponId,
       });
 
